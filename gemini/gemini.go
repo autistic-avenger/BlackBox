@@ -11,7 +11,22 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/charmbracelet/glamour"
 )
+
+type geminiResponse struct {
+	Steps   []geminiStep `json:"steps"`
+}
+
+type geminiStep struct {
+	Content []geminiStepContent `json:"content,omitempty"`
+}
+
+type geminiStepContent struct {
+	Text string `json:"text"`
+}
+
+
 
 func CallGemini(prompt string) {
 	godotenv.Load(".env")
@@ -42,12 +57,14 @@ func CallGemini(prompt string) {
 
 	resBody, _ := io.ReadAll(resp.Body)
 
-	var resps any
-	err = json.Unmarshal(resBody, &resps)
+	var formattedOutput geminiResponse
+	err = json.Unmarshal(resBody, &formattedOutput)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println(string(resBody))
+	
+	mdOutput := formattedOutput.Steps[1].Content[0].Text
+	Finaloutput,_ := glamour.Render(mdOutput,"dark")
+	fmt.Println(Finaloutput)
 
 }

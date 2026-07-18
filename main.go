@@ -3,5 +3,5 @@ package main
 import "blackbox/gemini"
 
 func main() {
-	gemini.CallGemini("Samay raina latest news")
+	gemini.CallGemini("Write a poem on Angela White.")
 }
