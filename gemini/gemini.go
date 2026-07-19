@@ -36,7 +36,7 @@ func CallGemini(prompt string) {
 	}
 
 	geminiURL := "https://generativelanguage.googleapis.com/v1beta/interactions"
-
+	fmt.Println("Getting Reply from gemini...")
 	reqBody := []byte(fmt.Sprintf(`{"model": "gemini-3.5-flash","input": "%s"}`,prompt))
 
 	req,err := http.NewRequest(http.MethodPost,geminiURL,bytes.NewBuffer(reqBody))
