@@ -5,29 +5,30 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
 
-	fmt.Printf("Enter The Prompt:")
-	scanner := bufio.NewScanner(os.Stdin)
+	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Print(">>>")
-		if !scanner.Scan() {
+		fmt.Print("\033[1;31m>>>\033[0m ")
+
+		prompt, err := reader.ReadString('\n')
+		prompt = strings.TrimSpace(prompt)
+		if err!=nil{
+			fmt.Println("Error reading string.")
 			break
 		}
 		
-		prompt := scanner.Text()
+		
 		if prompt == "exit" {
 			break
 		}
-
+		fmt.Println()
 		gemini.CallGemini(prompt)
 	}
 
-	if err := scanner.Err(); err != nil {
-		fmt.Println("Error:", err)
-	}
 	
 }
