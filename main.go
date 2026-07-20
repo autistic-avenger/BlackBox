@@ -1,34 +1,39 @@
 package main
 
 import (
-	"blackbox/gemini"
-	"bufio"
-	"fmt"
-	"os"
-	"strings"
+	"log"
+
+	tea "github.com/charmbracelet/bubbletea"
 )
 
-func main() {
+type model struct{
 
-	reader := bufio.NewReader(os.Stdin)
+}
 
-	for {
-		fmt.Print("\033[1;31m>>>\033[0m ")
+func (m model) Init() tea.Cmd{
+	return nil
+}
 
-		prompt, err := reader.ReadString('\n')
-		prompt = strings.TrimSpace(prompt)
-		if err!=nil{
-			fmt.Println("Error reading string.")
-			break
+func (m model) View() string {
+	return "TESTING 123\nPress q to quit"
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model ,tea.Cmd){
+	switch msg := msg.(type){
+	case tea.KeyMsg:
+		switch msg.String(){
+		case "q":
+			return m, tea.Quit
 		}
-		
-		
-		if prompt == "exit" {
-			break
-		}
-		fmt.Println()
-		gemini.CallGemini(prompt)
+	}
+	return m ,nil
+}
+
+func main(){
+
+	p := tea.NewProgram(model{})
+	if _, teaErr := p.Run(); teaErr!=nil{
+		log.Panic(teaErr)
 	}
 
-	
 }
