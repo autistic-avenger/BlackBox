@@ -10,7 +10,11 @@ import (
 func main() {
 	//TESTING NOWWWWW
 	raw, _ := os.ReadFile("HELLO.torrent")
-	torrentFull,_ := torrents.OpenTorrent(bytes.NewBuffer(raw))
+	torrentFull,err := torrents.OpenTorrent(bytes.NewBuffer(raw))
+	if err!=nil{
+		fmt.Println("Torrent is corrupted")
+		os.Exit(1)
+	}
 	torrentINFO,_ := torrentFull.ToTorrentFile()
 	peerID := []byte("PeerIDPeerIDPeerID22")
 	url ,_ := torrentINFO.BuildURL([20]byte(peerID),6881)
