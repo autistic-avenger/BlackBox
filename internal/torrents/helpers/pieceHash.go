@@ -10,3 +10,7 @@ func PieceHash(pieces string) [][20]byte {
 	}
 	return hashes
 }
+
+func GeneratePeerID(){
+	
+}

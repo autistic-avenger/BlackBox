@@ -4,7 +4,10 @@ import (
 	"blackbox/internal/torrents/helpers"
 	"bytes"
 	"crypto/sha1"
+	"fmt"
 	"io"
+	"net/url"
+	"strconv"
 
 	"github.com/jackpal/bencode-go"
 )
@@ -43,7 +46,7 @@ type TorrentFile struct {
     Name        string
 }
 
-func (parsedTorrent TorrentRaw) toTorrentFile() (TorrentFile,error){
+func (parsedTorrent TorrentRaw) ToTorrentFile() (TorrentFile,error){
 	var infoBuf bytes.Buffer
 	err := bencode.Marshal(&infoBuf,parsedTorrent.Info)
 	if err!=nil{
@@ -61,4 +64,26 @@ func (parsedTorrent TorrentRaw) toTorrentFile() (TorrentFile,error){
 		Name: parsedTorrent.Info.Name,
 	}
 	return tf,nil
+}
+
+
+
+func (tf TorrentFile) BuildURL(peerID [20]byte ,port int) (string, error) {
+	baseURL, err := url.Parse(tf.Announce)
+	fmt.Println(baseURL.Scheme)
+	if err != nil {
+		return "", err
+	}
+	
+	querry := baseURL.Query()
+	querry.Add("info_hash",string(tf.InfoHash[:]))
+	querry.Add("peer_id",string(peerID[:]))
+	querry.Add("port",strconv.Itoa(port))
+	querry.Add("uploaded","0")
+	querry.Add("downloaded","0")
+	querry.Add("compact","1")
+	querry.Add("left",strconv.Itoa(tf.Length))
+
+	baseURL.RawQuery = querry.Encode()	
+	return baseURL.String(), nil
 }
