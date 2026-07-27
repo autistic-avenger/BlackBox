@@ -18,7 +18,6 @@ func main() {
 	}
 	torrentINFO,_ := torrentFull.ToTorrentFile()
 	peerID,_ := helpers.GeneratePeerID()
-	fmt.Printf("%s\n",peerID)
 	url ,_ := torrentINFO.BuildURL([20]byte(peerID),6881)
 	fmt.Println(url)
 }

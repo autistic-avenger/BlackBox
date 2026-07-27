@@ -4,6 +4,7 @@ import (
 	"blackbox/internal/torrents/helpers"
 	"bytes"
 	"crypto/sha1"
+	"fmt"
 	"io"
 	"net/url"
 	"strconv"

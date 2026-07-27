@@ -3,6 +3,7 @@ package helpers
 import (
 	"crypto/rand"
 	"fmt"
+	"math/big"
 	"os"
 	"path/filepath"
 )
@@ -18,7 +19,9 @@ func PieceHash(pieces string) [][20]byte {
 }
 
 func GeneratePeerID() ([]byte,error) {
-	peerID := []byte("-TR4130-")
+	CLIENT_CODE := "-B69420-"
+
+	peerID := []byte(CLIENT_CODE)
 	randomBytes := make([]byte,12)
 
 	Appdata := os.Getenv("LOCALAPPDATA")
@@ -37,10 +40,17 @@ func GeneratePeerID() ([]byte,error) {
 		}
 		return peerID,nil
 	} 
-	_, err = rand.Read(randomBytes)	
-	if err!=nil{
-		return nil,err
+
+	abcs := "abcdefghijklmnopqrstuvwxyz0123456789"
+	for i := range randomBytes {
+		n, err := rand.Int(rand.Reader, big.NewInt(int64(len(abcs))))
+		if err != nil {
+			return nil, err
+		}
+		randomBytes[i] = abcs[n.Int64()]
 	}
+
+
 	peerID = append(peerID, randomBytes...)
 	err = os.MkdirAll(blackboxPath,0755)
 	if err!=nil{
