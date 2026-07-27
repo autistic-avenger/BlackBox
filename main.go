@@ -11,10 +11,10 @@ import (
 
 func main() {
 	//TESTING NOWWWWW
-	raw, _ := os.ReadFile("HELLO.torrent")
+	raw, _ := os.ReadFile("ubuntu.torrent")
 	torrentFull,err := torrents.OpenTorrent(bytes.NewBuffer(raw))
 	if err!=nil{
-		fmt.Println("Torrent is corrupted")
+		fmt.Println("Torrent is corrupted..")
 		os.Exit(1)
 	}
 	torrentINFO,_ := torrentFull.ToTorrentFile()
@@ -24,6 +24,6 @@ func main() {
 	if err!=nil{
 		fmt.Println("ERROR SENDING REQ",err)
 	}
-	fmt.Println(url)
+	fmt.Printf("%x\n",torrentINFO.InfoHash)
 	fmt.Println(string(response))
 }

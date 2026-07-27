@@ -50,7 +50,6 @@ func GeneratePeerID() ([]byte,error) {
 		randomBytes[i] = abcs[n.Int64()]
 	}
 
-
 	peerID = append(peerID, randomBytes...)
 	err = os.MkdirAll(blackboxPath,0755)
 	if err!=nil{

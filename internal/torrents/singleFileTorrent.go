@@ -11,27 +11,20 @@ import (
 	"github.com/jackpal/bencode-go"
 )
 
-type FilesContent struct {
-	FileLength	int			`bencode:"length"`
-	Path		[]string	`bencode:"path"`
-}
-
 type TorrentRaw struct{
 	Announce	string 		`bencode:"announce"`
 	AnnounceList [][]string `bencode:"announce-list"`
 	Comment 	string 		`bencode:"comment"`
 	CreatedDate	int    		`bencode:"creation date"`
-	Encoding 	string 		`bencode:"encoding"`
-	Info 		TorrentInfo `bencode:"info"`
+	Info 		Info 		`bencode:"info"`
 }
 
 
-type TorrentInfo struct{
-	Files 		[]FilesContent	`bencode:"files"`
+type  Info struct{
+	Length 		int 			`bencode:"length,omitempty"`
 	Name 		string			`bencode:"name"`
 	PieceLen	int 			`bencode:"piece length"`
 	Pieces 		string 			`bencode:"pieces"`
-	Private 	int 			`bencode:"private"`
 }
 
 
