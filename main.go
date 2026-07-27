@@ -2,6 +2,7 @@ package main
 
 import (
 	"blackbox/internal/torrents"
+	"blackbox/internal/torrents/helpers"
 	"bytes"
 	"fmt"
 	"os"
@@ -16,7 +17,8 @@ func main() {
 		os.Exit(1)
 	}
 	torrentINFO,_ := torrentFull.ToTorrentFile()
-	peerID := []byte("PeerIDPeerIDPeerID22")
+	peerID,_ := helpers.GeneratePeerID()
+	fmt.Printf("%s\n",peerID)
 	url ,_ := torrentINFO.BuildURL([20]byte(peerID),6881)
 	fmt.Println(url)
 }

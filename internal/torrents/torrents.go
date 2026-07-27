@@ -4,7 +4,6 @@ import (
 	"blackbox/internal/torrents/helpers"
 	"bytes"
 	"crypto/sha1"
-	"fmt"
 	"io"
 	"net/url"
 	"strconv"
@@ -12,19 +11,27 @@ import (
 	"github.com/jackpal/bencode-go"
 )
 
+type FilesContent struct {
+	FileLength	int			`bencode:"length"`
+	Path		[]string	`bencode:"path"`
+}
+
 type TorrentRaw struct{
 	Announce	string 		`bencode:"announce"`
+	AnnounceList [][]string `bencode:"announce-list"`
 	Comment 	string 		`bencode:"comment"`
 	CreatedDate	int    		`bencode:"creation date"`
+	Encoding 	string 		`bencode:"encoding"`
 	Info 		TorrentInfo `bencode:"info"`
 }
 
 
 type TorrentInfo struct{
-	Length 		int 		`bencode:"length"`
-	Name 		string		`bencode:"name"`
-	PieceLen	int 		`bencode:"piece length"`
-	Pieces 		string 		`bencode:"pieces"`
+	Files 		[]FilesContent	`bencode:"files"`
+	Name 		string			`bencode:"name"`
+	PieceLen	int 			`bencode:"piece length"`
+	Pieces 		string 			`bencode:"pieces"`
+	Private 	int 			`bencode:"private"`
 }
 
 
@@ -60,7 +67,6 @@ func (parsedTorrent TorrentRaw) ToTorrentFile() (TorrentFile,error){
 		InfoHash: infoHash,
 		PieceHashes: pieceHash,
 		PieceLength: parsedTorrent.Info.PieceLen,
-		Length: parsedTorrent.Info.Length,
 		Name: parsedTorrent.Info.Name,
 	}
 	return tf,nil
@@ -70,7 +76,6 @@ func (parsedTorrent TorrentRaw) ToTorrentFile() (TorrentFile,error){
 
 func (tf TorrentFile) BuildURL(peerID [20]byte ,port int) (string, error) {
 	baseURL, err := url.Parse(tf.Announce)
-	fmt.Println(baseURL.Scheme)
 	if err != nil {
 		return "", err
 	}
