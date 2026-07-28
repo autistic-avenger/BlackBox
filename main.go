@@ -6,8 +6,8 @@ import (
 	"blackbox/internal/torrents/network"
 	"bytes"
 	"fmt"
-	"net/netip"
 	"os"
+	"strconv"
 )
 
 func main() {
@@ -25,7 +25,15 @@ func main() {
 	if err!=nil{
 		fmt.Println("ERROR SENDING REQ",err)
 	}
-	ip,_ := netip.ParseAddr(response.Peers[0].IP)
-	fmt.Println(ip.String())
-	
+	for _, peer := range response.Peers {
+		addr := "[" + peer.IP + "]:" + strconv.Itoa(peer.Port)
+
+		fmt.Println("Connecting:", addr)
+
+		go network.CallPeer(addr, torrentINFO.InfoHash[:], peerID[:])
+		if err != nil {
+			fmt.Println("Error:", err)
+			continue
+		}
+	}
 }

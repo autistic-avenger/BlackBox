@@ -1,6 +1,6 @@
 # 🚧 Work In Progress
 
-
+WILL FIRST ADD HTTP SUPPORT--> Torrent -->Magnets
 - [ ] Multi-file Torrent Support
 - [ ] Concurrent Downloads
 - [ ] Magnet Link Support
