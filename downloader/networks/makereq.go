@@ -86,7 +86,7 @@ func MakeRequest(url string) error {
 			ETA 	:=  (FileLeninBytes-currentWriteByte)/downloadSpeed
 			LastTime = timeNow
 			lastWriteByte = currentWriteByte
-			fmt.Printf("\r ETA: %s Speed: %s/s\n",helpers.CalculateTime(ETA),helpers.CalculateSize(downloadSpeed))
+			fmt.Printf("\rETA: %s Speed: %s/s\n",helpers.CalculateTime(ETA),helpers.CalculateSize(downloadSpeed))
 		}
 
 	}
