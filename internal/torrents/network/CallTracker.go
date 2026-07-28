@@ -1,12 +1,16 @@
 package network
 
 import (
+	"blackbox/internal/torrents"
+	"bytes"
 	"io"
 	"net/http"
 	"os"
+
+	"github.com/jackpal/bencode-go"
 )
 
-func CallTracker(url string) ([]byte , error) {
+func CallTracker(url string) (*torrents.AnnouncerResponse , error) {
 	Client := &http.Client{}
 	
 	req ,err := http.NewRequest(http.MethodGet,url,nil)
@@ -25,6 +29,12 @@ func CallTracker(url string) ([]byte , error) {
 		return nil,err
 	}
 	os.WriteFile("response.torrent",responseBytes,0644)
-
-	return responseBytes,nil
+	
+	var responseStruct torrents.AnnouncerResponse
+	err = bencode.Unmarshal(bytes.NewBuffer(responseBytes),&responseStruct)
+	if err!=nil{
+		return nil,err
+	}
+	
+	return &responseStruct,nil
 }

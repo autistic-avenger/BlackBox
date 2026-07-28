@@ -85,3 +85,17 @@ func (tf TorrentFile) BuildURL(peerID [20]byte ,port int) (string, error) {
 	baseURL.RawQuery = querry.Encode()	
 	return baseURL.String(), nil
 }
+
+
+type AnnouncerResponse struct {
+	Complete    int 	`bencode:"complete"`
+	Incomplete  int 	`bencode:"incomplete"`
+	Interval 	int 	`bencode:"interval"`
+	Peers 		[]Peer  `bencode:"peers"`	
+}
+
+type Peer struct{
+	IP			string	`bencode:"ip"`
+	PeerID		string	`bencode:"peer id"`
+	Port		int		`bencode:"port"`
+}

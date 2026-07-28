@@ -6,6 +6,7 @@ import (
 	"blackbox/internal/torrents/network"
 	"bytes"
 	"fmt"
+	"net/netip"
 	"os"
 )
 
@@ -24,6 +25,7 @@ func main() {
 	if err!=nil{
 		fmt.Println("ERROR SENDING REQ",err)
 	}
-	fmt.Printf("%x\n",torrentINFO.InfoHash)
-	fmt.Println(string(response))
+	ip,_ := netip.ParseAddr(response.Peers[0].IP)
+	fmt.Println(ip.String())
+	
 }
