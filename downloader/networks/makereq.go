@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"mime"
 	"strconv"
+	"time"
 
 	// "strconv"
 
@@ -43,14 +44,14 @@ func MakeRequest(url string) error {
 	var fileName string = "unknown.bin"
 
 	fileName = parsedDisposition["filename"] 
-	fmt.Printf("Downloading | [%s]\n",fileName)
+	fmt.Printf("\n\nDownloading | %s\n",fileName)
 
-	lenInBytes,err := strconv.Atoi(res.Header.Get("Content-Length"))
+	FileLeninBytes,err := strconv.Atoi(res.Header.Get("Content-Length"))
 	if err!=nil{
 		return err
 	}
 	
-	fmt.Printf("Size [%s]\n",helpers.CalculateSize(lenInBytes))
+	fmt.Printf("Size 	    | %s\n",helpers.CalculateSize(FileLeninBytes))
 
 	out, err := os.Create(fileName)
 	if err!=nil{
@@ -58,16 +59,36 @@ func MakeRequest(url string) error {
 	}
 	defer out.Close()
 	
-	buf := make([]byte, 32*1024)
+	buf := make([]byte, 64*1024)
+
+
+	LastTime := time.Now().UnixMilli()
+
+	lastWriteByte := 0
+	currentWriteByte := 0 
 
 	for {
-    n, err := res.Body.Read(buf)
-    if n > 0 {
-        out.Write(buf[:n])
-    }
-    if err != nil {
-        break
-    }
+		n, err := res.Body.Read(buf)
+		if n > 0 {
+			out.Write(buf[:n])
+			currentWriteByte+=n
+		}
+		if err != nil {
+			break
+		}
+		if (time.Now().UnixMilli()-LastTime)>1000{
+			
+			timeNow := time.Now().UnixMilli()
+			elapsed := int(timeNow-LastTime) / 1000
+
+			downloadSpeed := (currentWriteByte-lastWriteByte) / elapsed
+			
+			ETA 	:=  (FileLeninBytes-currentWriteByte)/downloadSpeed
+			LastTime = timeNow
+			lastWriteByte = currentWriteByte
+			fmt.Printf("\r ETA: %s Speed: %s/s\n",helpers.CalculateTime(ETA),helpers.CalculateSize(downloadSpeed))
+		}
+
 	}
 
 	return nil
