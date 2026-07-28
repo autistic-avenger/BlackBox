@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"fmt"
+	"time"
 )
 
 func CalculateSize(bytes int) string {
@@ -25,22 +26,5 @@ func CalculateSize(bytes int) string {
 }
 
 func CalculateTime(seconds int) string{
-	const (
-		MIN = 60
-		HOURS = MIN *60
-		DAY = 24*HOURS
-	)
-
-
-	switch {
-	case seconds >= DAY:
-		return fmt.Sprintf("%d Days",seconds/DAY)
-	case seconds >= HOURS:
-		return fmt.Sprintf("%d Hours",seconds/HOURS)
-	case seconds >= MIN:
-		return fmt.Sprintf("%d Mins",seconds/MIN)
-	default:
-		return fmt.Sprintf("%d Sec", seconds)
-	}
-	
+	return (time.Duration(seconds) * time.Second).String()	
 }
