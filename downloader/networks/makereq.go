@@ -1,8 +1,12 @@
 package networks
 
 import (
+	"blackbox/downloader/helpers"
 	"fmt"
 	"mime"
+	"strconv"
+
+	// "strconv"
 
 	"net/http"
 	"os"
@@ -16,8 +20,8 @@ func MakeRequest(url string) error {
 		return err
 	}
 	req.Header.Set(
-    "User-Agent",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+		"User-Agent",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
 	)
 
 	res,err := client.Do(req)
@@ -26,15 +30,27 @@ func MakeRequest(url string) error {
 	}
 	defer res.Body.Close()
 
+	if res.StatusCode != http.StatusOK {
+		return fmt.Errorf("ERROR :Bad Gateway!")
+	}
+
 	disposition := res.Header.Get("Content-Disposition")
-	mediaType ,parsedDisposition, err  :=  mime.ParseMediaType(disposition)
+	_ ,parsedDisposition, err  :=  mime.ParseMediaType(disposition)
 	if err!= nil{
 		return err
 	}
-	fmt.Println("MeidaType :",mediaType)
-	fmt.Println("parsed :",parsedDisposition)
+	
+	var fileName string = "unknown.bin"
 
-	fileName := parsedDisposition["filename"]
+	fileName = parsedDisposition["filename"] 
+	fmt.Printf("Downloading | [%s]\n",fileName)
+
+	lenInBytes,err := strconv.Atoi(res.Header.Get("Content-Length"))
+	if err!=nil{
+		return err
+	}
+	
+	fmt.Printf("Size [%s]\n",helpers.CalculateSize(lenInBytes))
 
 	out, err := os.Create(fileName)
 	if err!=nil{
@@ -53,6 +69,6 @@ func MakeRequest(url string) error {
         break
     }
 	}
-		
+
 	return nil
 }
