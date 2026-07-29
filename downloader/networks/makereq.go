@@ -36,6 +36,8 @@ func MakeRequest(url string) error {
 	}
 
 	disposition := res.Header.Get("Content-Disposition")
+	// partialDownSupport := res.Header.Get("Accept-Ranges")
+
 	_ ,parsedDisposition, err  :=  mime.ParseMediaType(disposition)
 	if err!= nil{
 		return err
@@ -86,7 +88,8 @@ func MakeRequest(url string) error {
 			ETA 	:=  (FileLeninBytes-currentWriteByte)/downloadSpeed
 			LastTime = timeNow
 			lastWriteByte = currentWriteByte
-			fmt.Printf("\rETA: %s Speed: %s/s\n",helpers.CalculateTime(ETA),helpers.CalculateSize(downloadSpeed))
+			fmt.Printf("\r\033[K")
+			fmt.Printf("Downloaded: %s/%s ETA: %s Speed: %s/s",helpers.CalculateSize(currentWriteByte),helpers.CalculateSize(FileLeninBytes),helpers.CalculateTime(ETA),helpers.CalculateSize(downloadSpeed))
 		}
 
 	}
