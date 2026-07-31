@@ -3,7 +3,7 @@
 WILL FIRST ADD HTTP SUPPORT then try to add torrents too
 
 - [x] HTTP File Downloads
-- [ ] Pipeline the downloads 
+- [x] Pipeline the downloads 
 - [ ] Terminal UI with bubleTEA
-- [ ] Download Progress & Speed Tracking
+- [x] Download Progress & Speed Tracking
 - [ ] Resume Interrupted Downloads
