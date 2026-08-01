@@ -13,6 +13,7 @@ var Logo string = assets.GetLogo()
 
 var (
 	InputStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#6B61BA"))
+	HelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#B7B2E6"))
 )
 
 type File struct{
@@ -83,9 +84,24 @@ func (m model) Update(msg tea.Msg) (tea.Model,tea.Cmd){
 }
 
 func (m model) View() tea.View{
-	theLogo := lipgloss.Place(m.width,7,lipgloss.Center,lipgloss.Center,Logo)
+	theLogo := lipgloss.Place(
+		m.width,7,
+		lipgloss.Center,
+		lipgloss.Center,
+		Logo)
+	inputTag := InputStyle.Render(m.AddLink.View())
 
-	v:= tea.NewView(lipgloss.JoinVertical(lipgloss.Center,theLogo, InputStyle.Render(m.AddLink.View())))
+	body := lipgloss.Place(
+		m.width,
+		m.height-2,
+		lipgloss.Center,
+		lipgloss.Top,
+		lipgloss.JoinVertical(lipgloss.Center,theLogo,inputTag))	
+
+	helpTxt := "/: Add links • ↑↓: Select • q: Quit"
+	helpTag := lipgloss.Place(m.width,1,lipgloss.Center,lipgloss.Bottom,HelpStyle.Render(helpTxt))
+ 
+	v:= tea.NewView(lipgloss.JoinVertical(lipgloss.Center,body,helpTag))
 	v.WindowTitle = "BlackBox"
 	v.BackgroundColor = lipgloss.Color("#282836")
 	v.AltScreen = true
