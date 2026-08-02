@@ -3,12 +3,11 @@ package filesio
 import (
 	"encoding/csv"
 	"os"
-
 	tea "charm.land/bubbletea/v2"
 )
 
 type IOFetchMsg struct{
-	files [][]string
+	Files [][]string
 }
 
 func FetchFiles() tea.Msg {
@@ -16,7 +15,7 @@ func FetchFiles() tea.Msg {
 	file, err := os.Open(filePath)
 	if err!=nil{
 		return IOFetchMsg{
-			files: [][]string{},
+			Files: [][]string{},
 		}
 	}
 	reader := csv.NewReader(file)
@@ -24,10 +23,10 @@ func FetchFiles() tea.Msg {
 	records,err := reader.ReadAll()
 	if err!=nil{
 		return IOFetchMsg{
-			files: [][]string{},
+			Files: [][]string{},
 		}
 	}
 	return IOFetchMsg{
-		files: records,
+		Files: records,
 	}
 }
