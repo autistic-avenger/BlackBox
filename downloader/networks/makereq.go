@@ -4,11 +4,9 @@ import (
 	"blackbox/downloader/helpers"
 	"fmt"
 	"mime"
+	"path/filepath"
 	"strconv"
 	"time"
-
-	// "strconv"
-
 	"net/http"
 	"os"
 )
@@ -55,7 +53,8 @@ func MakeRequest(url string) error {
 	
 	fmt.Printf("Size 	    | %s\n",helpers.CalculateSize(FileLeninBytes))
 
-	out, err := os.Create(fileName)
+	downloadFilePath := filepath.Join(helpers.GetDownloadPath(),fileName)
+	out, err := os.Create(downloadFilePath)
 	if err!=nil{
 		return err
 	}
@@ -66,7 +65,7 @@ func MakeRequest(url string) error {
 
 	LastTime := time.Now().UnixMilli()
 
-	lastWriteByte := 0
+	// lastWriteByte := 0
 	currentWriteByte := 0 
 
 	for {
@@ -80,16 +79,15 @@ func MakeRequest(url string) error {
 		}
 		if (time.Now().UnixMilli()-LastTime)>1000{
 			
-			timeNow := time.Now().UnixMilli()
-			elapsed := int(timeNow-LastTime) / 1000
+			// timeNow := time.Now().UnixMilli()
+			// // elapsed := int(timeNow-LastTime) / 1000
 
-			downloadSpeed := (currentWriteByte-lastWriteByte) / elapsed
+			// // downloadSpeed := (currentWriteByte-lastWriteByte) / elapsed
 			
-			ETA 	:=  (FileLeninBytes-currentWriteByte)/downloadSpeed
-			LastTime = timeNow
-			lastWriteByte = currentWriteByte
-			fmt.Printf("\r\033[K")
-			fmt.Printf("Downloaded: %s/%s ETA: %s Speed: %s/s",helpers.CalculateSize(currentWriteByte),helpers.CalculateSize(FileLeninBytes),helpers.CalculateTime(ETA),helpers.CalculateSize(downloadSpeed))
+			// // ETA 	:=  (FileLeninBytes-currentWriteByte)/downloadSpeed
+			// LastTime = timeNow
+			// lastWriteByte = currentWriteByte
+
 		}
 
 	}

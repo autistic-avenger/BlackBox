@@ -2,8 +2,10 @@ package main
 
 import (
 	"blackbox/assets"
+	"blackbox/downloader"
 	filesio "blackbox/filesIO"
 	"log"
+
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
@@ -67,6 +69,8 @@ func (m model) Update(msg tea.Msg) (tea.Model,tea.Cmd){
 			return m,cmd
 		case "enter":
 			if m.AddLink.Focused(){
+				downloadLink := m.AddLink.Value()
+				go downloader.DownloadFile(downloadLink)
 				m.AddLink.Blur()
 				m.AddLink.SetValue("")
 				m.AddLink.Placeholder = `Press "/" to add link`
@@ -85,10 +89,13 @@ func (m model) Update(msg tea.Msg) (tea.Model,tea.Cmd){
 
 func (m model) View() tea.View{
 	theLogo := lipgloss.Place(
-		m.width,7,
+		m.width,
+		7,
 		lipgloss.Center,
 		lipgloss.Center,
-		Logo)
+		Logo,
+	)
+
 	inputTag := InputStyle.Render(m.AddLink.View())
 
 	body := lipgloss.Place(
@@ -96,16 +103,36 @@ func (m model) View() tea.View{
 		m.height-2,
 		lipgloss.Center,
 		lipgloss.Top,
-		lipgloss.JoinVertical(lipgloss.Center,theLogo,inputTag))	
+		lipgloss.JoinVertical(
+			lipgloss.Center,
+			theLogo,
+			inputTag),
+		)	
 
 	helpTxt := "/: Add link • ↑↓: Select • Esc: back • q: Quit"
-	helpTag := lipgloss.Place(m.width,1,lipgloss.Center,lipgloss.Bottom,HelpStyle.Render(helpTxt))
+	helpTag := lipgloss.Place(
+		m.width,
+		1,
+		lipgloss.Center,
+		lipgloss.Bottom,
+		HelpStyle.Render(helpTxt),
+	)
 	
 	var v tea.View
 	if m.isLoading{
-		v = tea.NewView(lipgloss.Place(m.width,m.height,lipgloss.Center,lipgloss.Center,"Loading..."))
+		v = tea.NewView(lipgloss.Place(
+			m.width,
+			m.height,
+			lipgloss.Center,
+			lipgloss.Center,
+			"Loading..."),
+		)
 	}else{
-		v= tea.NewView(lipgloss.JoinVertical(lipgloss.Center,body,helpTag))
+		v= tea.NewView(lipgloss.JoinVertical(
+			lipgloss.Center,
+			body,
+			helpTag),
+		)
 	}
 	v.WindowTitle = "BlackBox"
 	v.BackgroundColor = lipgloss.Color("#282836")
