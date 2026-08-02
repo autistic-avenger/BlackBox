@@ -2,8 +2,8 @@ package main
 
 import (
 	"blackbox/assets"
+	filesio "blackbox/filesIO"
 	"log"
-	"time"
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
@@ -28,7 +28,6 @@ func initModel(m *model){
 	ti := textinput.New()
 	ti.Placeholder = `Press "/" to add link.`
 	ti.Prompt = " >  "
-
 	m.AddLink = ti
 	m.isLoading = true
 }
@@ -42,14 +41,9 @@ type model struct{
 	isLoading bool
 }
 
-type IOFetchMsg struct{}
-func fetchFiles() tea.Msg {
-	time.Sleep(5* time.Second)
-	return IOFetchMsg{}
-}
 
 func (m model) Init() tea.Cmd { 
-	return fetchFiles
+	return filesio.FetchFiles
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model,tea.Cmd){
@@ -61,22 +55,28 @@ func (m model) Update(msg tea.Msg) (tea.Model,tea.Cmd){
 		m.width  = msg.Width
 		m.AddLink.SetWidth(min(60,m.width-3))
 		return m, nil
+	case filesio.IOFetchMsg:
+		m.isLoading = false
 	case tea.KeyMsg:
 		switch msg.String(){
 		case "q":
 			return m, tea.Quit
 		case "/":
 			cmd = m.AddLink.Focus()
+			m.AddLink.Placeholder = ""
 			return m,cmd
 		case "enter":
 			if m.AddLink.Focused(){
 				m.AddLink.Blur()
 				m.AddLink.SetValue("")
+				m.AddLink.Placeholder = `Press "/" to add link`
+
 			}
 		case "esc":
 			if m.AddLink.Focused(){
 				m.AddLink.Blur()
-			}	
+				m.AddLink.Placeholder = `Press "/" to add link`
+			}
 		}
 	}
 	m.AddLink, cmd = m.AddLink.Update(msg)
@@ -98,10 +98,15 @@ func (m model) View() tea.View{
 		lipgloss.Top,
 		lipgloss.JoinVertical(lipgloss.Center,theLogo,inputTag))	
 
-	helpTxt := "/: Add links • ↑↓: Select • q: Quit"
+	helpTxt := "/: Add link • ↑↓: Select • Esc: back • q: Quit"
 	helpTag := lipgloss.Place(m.width,1,lipgloss.Center,lipgloss.Bottom,HelpStyle.Render(helpTxt))
- 
-	v:= tea.NewView(lipgloss.JoinVertical(lipgloss.Center,body,helpTag))
+	
+	var v tea.View
+	if m.isLoading{
+		v = tea.NewView(lipgloss.Place(m.width,m.height,lipgloss.Center,lipgloss.Center,"Loading..."))
+	}else{
+		v= tea.NewView(lipgloss.JoinVertical(lipgloss.Center,body,helpTag))
+	}
 	v.WindowTitle = "BlackBox"
 	v.BackgroundColor = lipgloss.Color("#282836")
 	v.AltScreen = true
