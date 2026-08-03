@@ -4,6 +4,7 @@ import (
 	"blackbox/assets"
 	"blackbox/downloader"
 	filesio "blackbox/filesIO"
+	"blackbox/models"
 	"log"
 
 	"charm.land/bubbles/v2/textinput"
@@ -18,13 +19,6 @@ var (
 	HelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#B7B2E6"))
 )
 
-type File struct{
-	path string
-	name string 
-	progress float32
-	isSelected bool
-	isCompleted bool
-}
 
 func initModel(m *model){
 	ti := textinput.New()
@@ -39,7 +33,7 @@ type model struct{
 	height int
 	width int
 	AddLink textinput.Model
-	Files []File
+	Files []*models.File
 	isLoading bool
 }
 
@@ -69,8 +63,10 @@ func (m model) Update(msg tea.Msg) (tea.Model,tea.Cmd){
 			return m,cmd
 		case "enter":
 			if m.AddLink.Focused(){
-				downloadLink := m.AddLink.Value()
-				go downloader.DownloadFile(downloadLink)
+				var File models.File
+				File.Link = m.AddLink.Value()
+				downloader.DownloadFile(&File)
+				m.Files = append(m.Files, &File)
 				m.AddLink.Blur()
 				m.AddLink.SetValue("")
 				m.AddLink.Placeholder = `Press "/" to add link`

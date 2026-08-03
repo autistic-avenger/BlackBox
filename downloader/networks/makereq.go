@@ -2,19 +2,20 @@ package networks
 
 import (
 	"blackbox/downloader/helpers"
+	"blackbox/models"
 	"fmt"
 	"mime"
+	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 	"time"
-	"net/http"
-	"os"
 )
 
-func MakeRequest(url string) error {
+func MakeRequest(file *models.File) error {
 	client := &http.Client{}
 	
-	req,err := http.NewRequest(http.MethodGet,url,nil)
+	req,err := http.NewRequest(http.MethodGet,file.Link,nil)
 	if err!=nil{
 		return err
 	}
@@ -44,14 +45,14 @@ func MakeRequest(url string) error {
 	var fileName string = "unknown.bin"
 
 	fileName = parsedDisposition["filename"] 
-	fmt.Printf("\n\nDownloading | %s\n",fileName)
+	file.Name = fileName
 
 	FileLeninBytes,err := strconv.Atoi(res.Header.Get("Content-Length"))
 	if err!=nil{
 		return err
 	}
 	
-	fmt.Printf("Size 	    | %s\n",helpers.CalculateSize(FileLeninBytes))
+	file.TotalSize = helpers.CalculateSize(FileLeninBytes)
 
 	downloadFilePath := filepath.Join(helpers.GetDownloadPath(),fileName)
 	out, err := os.Create(downloadFilePath)
@@ -60,12 +61,13 @@ func MakeRequest(url string) error {
 	}
 	defer out.Close()
 	
+	file.Path = downloadFilePath
 	buf := make([]byte, 64*1024)
 
 
 	LastTime := time.Now().UnixMilli()
 
-	// lastWriteByte := 0
+	lastWriteByte := 0
 	currentWriteByte := 0 
 
 	for {
@@ -77,20 +79,25 @@ func MakeRequest(url string) error {
 		if err != nil {
 			break
 		}
-		if (time.Now().UnixMilli()-LastTime)>1000{
+		if (time.Now().UnixMilli()-LastTime)>200{
 			
-			// timeNow := time.Now().UnixMilli()
-			// // elapsed := int(timeNow-LastTime) / 1000
+			timeNow := time.Now().UnixMilli()
+			elapsed := int(timeNow-LastTime) / 1000
 
-			// // downloadSpeed := (currentWriteByte-lastWriteByte) / elapsed
+			downloadSpeed := (currentWriteByte-lastWriteByte) / elapsed
 			
-			// // ETA 	:=  (FileLeninBytes-currentWriteByte)/downloadSpeed
-			// LastTime = timeNow
-			// lastWriteByte = currentWriteByte
+			ETA 	:=  (FileLeninBytes-currentWriteByte)/downloadSpeed
+			LastTime = timeNow
+			lastWriteByte = currentWriteByte
 
+
+			file.ETA = helpers.CalculateTime(ETA)
+			file.Downloaded = helpers.CalculateSize(currentWriteByte)
+			file.Speed = fmt.Sprintf("%s/s",helpers.CalculateSize(downloadSpeed))
 		}
 
 	}
+	file.IsCompleted = true
 
 	return nil
 }

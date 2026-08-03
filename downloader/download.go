@@ -1,12 +1,12 @@
 package downloader
 
-import "blackbox/downloader/networks"
+import (
+	"blackbox/downloader/networks"
+	"blackbox/models"
+)
 
-func DownloadFile(fileUrl string) error {
-	err := networks.MakeRequest(fileUrl)
-	if err!=nil{
-		return err
-	}
-	return nil
-	
+
+
+func DownloadFile(file *models.File)  {
+	go networks.MakeRequest(file)
 }
