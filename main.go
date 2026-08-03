@@ -5,6 +5,7 @@ import (
 	"blackbox/downloader"
 	filesio "blackbox/filesIO"
 	"blackbox/models"
+	"blackbox/ticker"
 	"log"
 
 	"charm.land/bubbles/v2/textinput"
@@ -17,6 +18,7 @@ var Logo string = assets.GetLogo()
 var (
 	InputStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#6B61BA"))
 	HelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#B7B2E6"))
+	NotFoundStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#85869E"))
 )
 
 
@@ -39,7 +41,10 @@ type model struct{
 
 
 func (m model) Init() tea.Cmd { 
-	return filesio.FetchFiles
+	return tea.Batch(
+		filesio.FetchFiles,
+		ticker.TickTimer(),
+	)
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model,tea.Cmd){
@@ -51,8 +56,11 @@ func (m model) Update(msg tea.Msg) (tea.Model,tea.Cmd){
 		m.width  = msg.Width
 		m.AddLink.SetWidth(min(60,m.width-3))
 		return m, nil
+	case ticker.TickMsg:
+		return m,ticker.TickTimer()
 	case filesio.IOFetchMsg:
 		m.isLoading = false
+		return m,nil
 	case tea.KeyMsg:
 		switch msg.String(){
 		case "q":
@@ -94,6 +102,29 @@ func (m model) View() tea.View{
 
 	inputTag := InputStyle.Render(m.AddLink.View())
 
+	var Downloads []string
+
+	for _, fileData := range m.Files{
+		FileStyle := lipgloss.NewStyle().Border(lipgloss.BlockBorder()).Foreground(lipgloss.Blue).Render(
+			fileData.Name +"\t"+fileData.Downloaded+"\t"+fileData.ETA+"\t"+fileData.Speed)
+		Downloads = append(Downloads, FileStyle)
+	}
+	
+	var DownloadSection string
+	if len(m.Files) == 0 {
+		DownloadSection = lipgloss.Place(
+			m.width,
+			m.height/2,
+			lipgloss.Center,
+			lipgloss.Center,
+			NotFoundStyle.Render("Download list is Empty."))
+	}else{
+		DownloadSection = lipgloss.JoinVertical(
+			lipgloss.Top,
+			Downloads...
+		)
+	}
+
 	body := lipgloss.Place(
 		m.width,
 		m.height-2,
@@ -102,8 +133,10 @@ func (m model) View() tea.View{
 		lipgloss.JoinVertical(
 			lipgloss.Center,
 			theLogo,
-			inputTag),
-		)	
+			inputTag,
+			DownloadSection,
+		),
+	)	
 
 	helpTxt := "/: Add link • ↑↓: Select • Esc: back • q: Quit"
 	helpTag := lipgloss.Place(

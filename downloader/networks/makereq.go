@@ -79,14 +79,20 @@ func MakeRequest(file *models.File) error {
 		if err != nil {
 			break
 		}
-		if (time.Now().UnixMilli()-LastTime)>200{
+		if (time.Now().UnixMilli()-LastTime)> 100{
 			
 			timeNow := time.Now().UnixMilli()
-			elapsed := int(timeNow-LastTime) / 1000
+			elapsed := float64(timeNow-LastTime) / 1000
 
-			downloadSpeed := (currentWriteByte-lastWriteByte) / elapsed
+
+			downloadSpeed := int(float64(currentWriteByte-lastWriteByte) / elapsed)
 			
-			ETA 	:=  (FileLeninBytes-currentWriteByte)/downloadSpeed
+
+			var ETA int
+			if downloadSpeed > 0 {
+				ETA = (FileLeninBytes - currentWriteByte) / downloadSpeed
+			}
+
 			LastTime = timeNow
 			lastWriteByte = currentWriteByte
 
