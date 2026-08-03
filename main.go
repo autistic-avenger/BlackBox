@@ -3,10 +3,12 @@ package main
 import (
 	"blackbox/assets"
 	"blackbox/downloader"
+	"blackbox/downloader/helpers"
 	filesio "blackbox/filesIO"
 	"blackbox/models"
 	"blackbox/ticker"
 	"log"
+	"slices"
 
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
@@ -107,7 +109,6 @@ func (m model) View() tea.View{
 
 	for _, fileData := range m.Files{
 		FileStyle := DivStyle.Render(
-			lipgloss.NewStyle().Background(lipgloss.Color("#9386B2")).Foreground(lipgloss.Color("#ffffff")).Render(
 			lipgloss.Place(
 				min(68,m.width-2),
 				5,
@@ -117,26 +118,48 @@ func (m model) View() tea.View{
 					lipgloss.Top,
 					lipgloss.JoinHorizontal(
 						lipgloss.Center,
-						lipgloss.NewStyle().MaxWidth(34).Render(lipgloss.Place(
+						lipgloss.NewStyle().MaxWidth(34).Foreground(lipgloss.Color("#ffffff")).Bold(true).Render(lipgloss.Place(
 							34,
 							1,
 							lipgloss.Left,
 							lipgloss.Center,
-							" "+fileData.Name,
+							" "+helpers.Truncate(fileData.Name,33),
 						)),
-						lipgloss.NewStyle().MaxWidth(34).Render(lipgloss.Place(
+						lipgloss.NewStyle().MaxWidth(34).Foreground(lipgloss.Color("#ffffff")).Bold(true).Render(lipgloss.Place(
 							34,
 							1,
 							lipgloss.Right,
 							lipgloss.Center,
-							fileData.ETA+" ",
+							"▶  ",
 						)),
+					),
+					"",
+					lipgloss.Place(
+						min(68,m.width-2),
+						2,
+						lipgloss.Left,
+						lipgloss.Center,
+						lipgloss.JoinHorizontal(
+							lipgloss.Left,
+							" ",
+							lipgloss.NewStyle().Background(lipgloss.Color("#67658d")).Render(lipgloss.Place(
+								57,
+								1,
+								lipgloss.Left,
+								lipgloss.Center,
+								"",
+							)),
+							"      97%",
+						),
+
 					),
 				),
 			),
-		))
+		)
 		Downloads = append(Downloads, FileStyle)
 	}
+
+	slices.Reverse(Downloads)
 	
 	var DownloadSection string
 	if len(m.Files) == 0 {
