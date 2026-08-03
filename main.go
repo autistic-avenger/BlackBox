@@ -74,7 +74,10 @@ func (m model) Update(msg tea.Msg) (tea.Model,tea.Cmd){
 			return m,cmd
 		case "enter":
 			if m.AddLink.Focused(){
-				var File models.File
+				File := models.File{
+					Name: "Loading...",
+				}
+
 				File.Link = m.AddLink.Value()
 				downloader.DownloadFile(&File)
 				m.Files = append(m.Files, &File)
@@ -142,14 +145,21 @@ func (m model) View() tea.View{
 						lipgloss.JoinHorizontal(
 							lipgloss.Left,
 							" ",
-							lipgloss.NewStyle().Background(lipgloss.Color("#67658d")).Render(lipgloss.Place(
-								57,
+							lipgloss.NewStyle().Background(lipgloss.Color("#160afc")).Render(lipgloss.Place(
+								4,
 								1,
 								lipgloss.Left,
 								lipgloss.Center,
 								"",
 							)),
-							"      97%",
+							lipgloss.NewStyle().Background(lipgloss.Color("#67658d")).Render(lipgloss.Place(
+								53,
+								1,
+								lipgloss.Left,
+								lipgloss.Center,
+								"",
+							)),
+							"      0%",
 						),
 
 					),
