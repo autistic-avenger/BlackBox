@@ -45,6 +45,12 @@ func MakeRequest(file *models.File) error {
 	var fileName string = "unknown.bin"
 
 	fileName = parsedDisposition["filename"] 
+	downloadPath  := helpers.GetDownloadPath()
+
+	fileName = helpers.GetUniqueFilePath(downloadPath,fileName)
+
+	downloadFilePath := filepath.Join(downloadPath,fileName)
+
 	file.Mu.Lock()
 	file.Name = fileName
 	file.Mu.Unlock()
@@ -58,7 +64,6 @@ func MakeRequest(file *models.File) error {
 	file.TotalSize = FileLeninBytes
 	file.Mu.Unlock()
 
-	downloadFilePath := filepath.Join(helpers.GetDownloadPath(),fileName)
 	out, err := os.Create(downloadFilePath)
 	if err!=nil{
 		return err
