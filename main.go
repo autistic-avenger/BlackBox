@@ -111,6 +111,10 @@ func (m model) View() tea.View{
 	var Downloads []string
 
 	for _, fileData := range m.Files{
+		fileData.Mu.RLock()
+		fileName := fileData.Name
+		fileData.Mu.RUnlock()
+		
 		FileStyle := DivStyle.Render(
 			lipgloss.Place(
 				min(68,m.width-2),
@@ -126,7 +130,7 @@ func (m model) View() tea.View{
 							1,
 							lipgloss.Left,
 							lipgloss.Center,
-							" "+helpers.Truncate(fileData.Name,33),
+							" "+helpers.Truncate(fileName,33),
 						)),
 						lipgloss.NewStyle().MaxWidth(34).Foreground(lipgloss.Color("#ffffff")).Bold(true).Render(lipgloss.Place(
 							34,

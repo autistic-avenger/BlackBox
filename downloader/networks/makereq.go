@@ -45,14 +45,18 @@ func MakeRequest(file *models.File) error {
 	var fileName string = "unknown.bin"
 
 	fileName = parsedDisposition["filename"] 
+	file.Mu.Lock()
 	file.Name = fileName
+	file.Mu.Unlock()
 
 	FileLeninBytes,err := strconv.Atoi(res.Header.Get("Content-Length"))
 	if err!=nil{
 		return err
 	}
 	
+	file.Mu.Lock()
 	file.TotalSize = helpers.CalculateSize(FileLeninBytes)
+	file.Mu.Unlock()
 
 	downloadFilePath := filepath.Join(helpers.GetDownloadPath(),fileName)
 	out, err := os.Create(downloadFilePath)
@@ -61,7 +65,9 @@ func MakeRequest(file *models.File) error {
 	}
 	defer out.Close()
 	
+	file.Mu.Lock()
 	file.Path = downloadFilePath
+	file.Mu.Unlock()
 	buf := make([]byte, 64*1024)
 
 
@@ -97,13 +103,17 @@ func MakeRequest(file *models.File) error {
 			lastWriteByte = currentWriteByte
 
 
+			file.Mu.Lock()
 			file.ETA = helpers.CalculateTime(ETA)
 			file.Downloaded = helpers.CalculateSize(currentWriteByte)
 			file.Speed = fmt.Sprintf("%s/s",helpers.CalculateSize(downloadSpeed))
+			file.Mu.Unlock()
 		}
 
 	}
+	file.Mu.Lock()
 	file.IsCompleted = true
+	file.Mu.Unlock()
 
 	return nil
 }

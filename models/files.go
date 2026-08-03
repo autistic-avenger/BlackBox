@@ -1,7 +1,9 @@
 package models
 
+import "sync"
 
 type File struct{
+	Mu sync.RWMutex
 	Link string
 	Path string
 	Name string 
