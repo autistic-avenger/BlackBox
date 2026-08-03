@@ -19,6 +19,7 @@ var (
 	InputStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#6B61BA"))
 	HelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#B7B2E6"))
 	NotFoundStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#85869E"))
+	DivStyle = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#FF9A9B"))
 )
 
 
@@ -105,8 +106,35 @@ func (m model) View() tea.View{
 	var Downloads []string
 
 	for _, fileData := range m.Files{
-		FileStyle := lipgloss.NewStyle().Border(lipgloss.BlockBorder()).Foreground(lipgloss.Blue).Render(
-			fileData.Name +"\t"+fileData.Downloaded+"\t"+fileData.ETA+"\t"+fileData.Speed)
+		FileStyle := DivStyle.Render(
+			lipgloss.NewStyle().Background(lipgloss.Color("#9386B2")).Foreground(lipgloss.Color("#ffffff")).Render(
+			lipgloss.Place(
+				min(68,m.width-2),
+				5,
+				lipgloss.Center,
+				lipgloss.Top,
+				lipgloss.JoinVertical(
+					lipgloss.Top,
+					lipgloss.JoinHorizontal(
+						lipgloss.Center,
+						lipgloss.NewStyle().MaxWidth(34).Render(lipgloss.Place(
+							34,
+							1,
+							lipgloss.Left,
+							lipgloss.Center,
+							" "+fileData.Name,
+						)),
+						lipgloss.NewStyle().MaxWidth(34).Render(lipgloss.Place(
+							34,
+							1,
+							lipgloss.Right,
+							lipgloss.Center,
+							fileData.ETA+" ",
+						)),
+					),
+				),
+			),
+		))
 		Downloads = append(Downloads, FileStyle)
 	}
 	
