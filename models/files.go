@@ -13,4 +13,6 @@ type File struct{
 	IsSelected bool
 	IsCompleted bool
 	ETA string
+	Error string
+	Timeout bool
 }

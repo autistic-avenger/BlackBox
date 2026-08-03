@@ -8,5 +8,10 @@ import (
 
 
 func DownloadFile(file *models.File)  {
-	go networks.MakeRequest(file)
+	err := networks.MakeRequest(file)
+	if err!=nil{
+		file.Mu.Lock()
+		file.Error = "ERROR: http req failed :("
+		file.Mu.Unlock()
+	}
 }

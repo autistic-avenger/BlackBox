@@ -9,8 +9,8 @@ import (
 	"blackbox/ticker"
 	"fmt"
 	"log"
+	"net/url"
 	"slices"
-
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
@@ -70,22 +70,28 @@ func (m model) Update(msg tea.Msg) (tea.Model,tea.Cmd){
 		case "q":
 			return m, tea.Quit
 		case "/":
+			m.AddLink.SetValue("")
 			cmd = m.AddLink.Focus()
 			m.AddLink.Placeholder = ""
 			return m,cmd
 		case "enter":
 			if m.AddLink.Focused(){
-				File := models.File{
-					Name: "Loading...",
-				}
+				File := models.File{}
 
 				File.Link = m.AddLink.Value()
-				downloader.DownloadFile(&File)
+				_,err := url.ParseRequestURI(File.Link)
+				if err!=nil{
+					m.AddLink.Blur()
+					m.AddLink.SetValue("ERROR: Invalid url :(")
+					return m,nil
+				}
+
+				go downloader.DownloadFile(&File)
 				m.Files = append(m.Files, &File)
-				m.AddLink.Blur()
 				m.AddLink.SetValue("")
 				m.AddLink.Placeholder = `Press "/" to add link`
 
+				return m,nil
 			}
 		case "esc":
 			if m.AddLink.Focused(){
@@ -118,72 +124,81 @@ func (m model) View() tea.View{
 		var progress float32
 		var progressTile int 
 		var progressLeftTile int
+		var fileName string
+		var FileStyle string
 
 		fileData.Mu.RLock()
-		fileName := fileData.Name
-		if fileData.TotalSize > 0{
+		fileName = fileData.Name
+		fileData.Mu.RUnlock()
+
+		if fileName != ""{
+			fileData.Mu.RLock()
 			progress = float32(fileData.Downloaded)/float32(fileData.TotalSize)
 			progressTile = int(progress* 57)
 			progressLeftTile = 57-progressTile
-		}
-		fileData.Mu.RUnlock()
-		
-		FileStyle := DivStyle.Render(
-			lipgloss.Place(
-				min(68,m.width-2),
-				5,
-				lipgloss.Center,
-				lipgloss.Top,
-				lipgloss.JoinVertical(
+			FileStyle = DivStyle.Render(
+				lipgloss.Place(
+					min(68,m.width-2),
+					5,
+					lipgloss.Center,
 					lipgloss.Top,
-					lipgloss.JoinHorizontal(
-						lipgloss.Center,
-						lipgloss.NewStyle().MaxWidth(34).Foreground(lipgloss.Color("#ffffff")).Bold(true).Render(lipgloss.Place(
-							34,
-							1,
-							lipgloss.Left,
-							lipgloss.Center,
-							" "+helpers.Truncate(fileName,33),
-						)),
-						lipgloss.NewStyle().MaxWidth(34).Foreground(lipgloss.Color("#ffffff")).Bold(true).Render(lipgloss.Place(
-							34,
-							1,
-							lipgloss.Right,
-							lipgloss.Center,
-							"▶  ",
-						)),
-					),
-					"",
-					lipgloss.Place(
-						min(68,m.width-2),
-						2,
-						lipgloss.Left,
-						lipgloss.Center,
+					lipgloss.JoinVertical(
+						lipgloss.Top,
 						lipgloss.JoinHorizontal(
-							lipgloss.Left,
-							" ",
-							lipgloss.NewStyle().Background(lipgloss.Color("#FF9A9B")).Render(lipgloss.Place(
-								progressTile,
+							lipgloss.Center,
+							lipgloss.NewStyle().MaxWidth(34).Foreground(lipgloss.Color("#ffffff")).Bold(true).Render(lipgloss.Place(
+								34,
 								1,
 								lipgloss.Left,
 								lipgloss.Center,
-								"",
+								" "+helpers.Truncate(fileName,33),
 							)),
-							lipgloss.NewStyle().Background(lipgloss.Color("#9788B3")).Render(lipgloss.Place(
-								progressLeftTile,
+							lipgloss.NewStyle().MaxWidth(34).Foreground(lipgloss.Color("#ffffff")).Bold(true).Render(lipgloss.Place(
+								34,
 								1,
-								lipgloss.Left,
+								lipgloss.Right,
 								lipgloss.Center,
-								"",
+								"▶  ",
 							)),
-							fmt.Sprintf("    %.1f%% ",progress*100),
 						),
-
+						"",
+						lipgloss.Place(
+							min(68,m.width-2),
+							2,
+							lipgloss.Left,
+							lipgloss.Center,
+							lipgloss.JoinHorizontal(
+								lipgloss.Left,
+								" ",
+								lipgloss.NewStyle().Background(lipgloss.Color("#FF9A9B")).Render(lipgloss.Place(
+									progressTile,
+									1,
+									lipgloss.Left,
+									lipgloss.Center,
+									"",
+								)),
+								lipgloss.NewStyle().Background(lipgloss.Color("#9788B3")).Render(lipgloss.Place(
+									progressLeftTile,
+									1,
+									lipgloss.Left,
+									lipgloss.Center,
+									"",
+								)),
+								fmt.Sprintf("    %.1f%% ",progress*100),
+							),
+	
+						),
 					),
 				),
-			),
-		)
-		Downloads = append(Downloads, FileStyle)
+			)
+			fileData.Mu.RUnlock()
+		}else{
+			FileStyle = ""
+		}
+		
+		if FileStyle != ""{
+			Downloads = append(Downloads, FileStyle)
+		}
 	}
 
 	slices.Reverse(Downloads)
