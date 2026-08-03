@@ -55,7 +55,7 @@ func MakeRequest(file *models.File) error {
 	}
 	
 	file.Mu.Lock()
-	file.TotalSize = helpers.CalculateSize(FileLeninBytes)
+	file.TotalSize = FileLeninBytes
 	file.Mu.Unlock()
 
 	downloadFilePath := filepath.Join(helpers.GetDownloadPath(),fileName)
@@ -105,14 +105,15 @@ func MakeRequest(file *models.File) error {
 
 			file.Mu.Lock()
 			file.ETA = helpers.CalculateTime(ETA)
-			file.Downloaded = helpers.CalculateSize(currentWriteByte)
-			file.Speed = fmt.Sprintf("%s/s",helpers.CalculateSize(downloadSpeed))
+			file.Downloaded = currentWriteByte
 			file.Mu.Unlock()
 		}
 
 	}
 	file.Mu.Lock()
 	file.IsCompleted = true
+	file.Downloaded = currentWriteByte
+	file.ETA = "0s"
 	file.Mu.Unlock()
 
 	return nil

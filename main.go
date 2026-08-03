@@ -7,6 +7,7 @@ import (
 	filesio "blackbox/filesIO"
 	"blackbox/models"
 	"blackbox/ticker"
+	"fmt"
 	"log"
 	"slices"
 
@@ -108,11 +109,23 @@ func (m model) View() tea.View{
 
 	inputTag := InputStyle.Render(m.AddLink.View())
 
+	
+	
+	
 	var Downloads []string
-
+	
 	for _, fileData := range m.Files{
+		var progress float32
+		var progressTile int 
+		var progressLeftTile int
+
 		fileData.Mu.RLock()
 		fileName := fileData.Name
+		if fileData.TotalSize > 0{
+			progress = float32(fileData.Downloaded)/float32(fileData.TotalSize)
+			progressTile = int(progress* 57)
+			progressLeftTile = 57-progressTile
+		}
 		fileData.Mu.RUnlock()
 		
 		FileStyle := DivStyle.Render(
@@ -149,21 +162,21 @@ func (m model) View() tea.View{
 						lipgloss.JoinHorizontal(
 							lipgloss.Left,
 							" ",
-							lipgloss.NewStyle().Background(lipgloss.Color("#160afc")).Render(lipgloss.Place(
-								4,
+							lipgloss.NewStyle().Background(lipgloss.Color("#FF9A9B")).Render(lipgloss.Place(
+								progressTile,
 								1,
 								lipgloss.Left,
 								lipgloss.Center,
 								"",
 							)),
-							lipgloss.NewStyle().Background(lipgloss.Color("#67658d")).Render(lipgloss.Place(
-								53,
+							lipgloss.NewStyle().Background(lipgloss.Color("#9788B3")).Render(lipgloss.Place(
+								progressLeftTile,
 								1,
 								lipgloss.Left,
 								lipgloss.Center,
 								"",
 							)),
-							"      0%",
+							fmt.Sprintf("    %.1f%% ",progress*100),
 						),
 
 					),

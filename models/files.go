@@ -7,8 +7,8 @@ type File struct{
 	Link string
 	Path string
 	Name string 
-	Downloaded string
-	TotalSize string
+	Downloaded int
+	TotalSize int
 	Speed string
 	IsSelected bool
 	IsCompleted bool
