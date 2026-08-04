@@ -14,9 +14,7 @@ import (
 )
 
 func MakeRequest(file *models.File) error {
-	client := &http.Client{
-		Timeout: 30 * time.Second,
-	}
+	client := &http.Client{}
 	
 	req,err := http.NewRequest(http.MethodGet,file.Link,nil)
 	if err!=nil{
