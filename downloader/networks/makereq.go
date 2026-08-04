@@ -90,7 +90,7 @@ func MakeRequest(file *models.File) error {
 		if err != nil {
 			break
 		}
-		if (time.Now().UnixMilli()-LastTime)> 100{
+		if (time.Now().UnixMilli()-LastTime)> 1000{
 			
 			timeNow := time.Now().UnixMilli()
 			elapsed := float64(timeNow-LastTime) / 1000

@@ -126,6 +126,10 @@ func (m model) View() tea.View{
 		var progressLeftTile int
 		var fileName string
 		var FileStyle string
+		var ETA string
+		var Speed string
+		var downlaoded int
+		var totalSize int
 
 		fileData.Mu.RLock()
 		fileName = fileData.Name
@@ -133,9 +137,15 @@ func (m model) View() tea.View{
 
 		if fileName != ""{
 			fileData.Mu.RLock()
-			progress = float32(fileData.Downloaded)/float32(fileData.TotalSize)
+			downlaoded = fileData.Downloaded
+			totalSize = fileData.TotalSize
+			progress = float32(downlaoded)/float32(totalSize)
 			progressTile = int(progress* 57)
 			progressLeftTile = 57-progressTile
+			ETA = fileData.ETA
+			Speed = fileData.Speed
+			fileData.Mu.RUnlock()
+
 			FileStyle = DivStyle.Render(
 				lipgloss.Place(
 					min(68,m.width-2),
@@ -184,14 +194,45 @@ func (m model) View() tea.View{
 									lipgloss.Center,
 									"",
 								)),
-								fmt.Sprintf("    %.1f%% ",progress*100),
+								fmt.Sprintf("   %.1f%% ",progress*100),
 							),
 	
+						),
+						lipgloss.Place(
+							min(68,m.width-2),
+							1,
+							lipgloss.Left,
+							lipgloss.Center,
+							lipgloss.JoinHorizontal(
+								lipgloss.Left,
+								lipgloss.Place(
+									22,
+									1,
+									lipgloss.Left,
+									lipgloss.Center,
+									fmt.Sprintf(" ETA: %s",ETA),
+								),
+								lipgloss.Place(
+									22,
+									1,
+									lipgloss.Center,
+									lipgloss.Center,
+									helpers.GetProgress(downlaoded,totalSize),
+								),
+								lipgloss.Place(
+									22,
+									1,
+									lipgloss.Right,
+									lipgloss.Center,
+									fmt.Sprintf("Speed: %s/s",Speed),
+								),
+								
+							),
 						),
 					),
 				),
 			)
-			fileData.Mu.RUnlock()
+
 		}else{
 			FileStyle = ""
 		}
