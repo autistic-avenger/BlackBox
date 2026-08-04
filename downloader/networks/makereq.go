@@ -109,7 +109,8 @@ func MakeRequest(file *models.File) error {
 
 
 			file.Mu.Lock()
-			file.ETA = helpers.CalculateTime(ETA)
+			file.Speed = helpers.GetSpeed(downloadSpeed)
+			file.ETA = helpers.GetETA(ETA)
 			file.Downloaded = currentWriteByte
 			file.Mu.Unlock()
 		}
@@ -117,6 +118,7 @@ func MakeRequest(file *models.File) error {
 	}
 	file.Mu.Lock()
 	file.IsCompleted = true
+	file.Speed = "0 B/s"
 	file.Downloaded = currentWriteByte
 	file.ETA = "0s"
 	file.Mu.Unlock()

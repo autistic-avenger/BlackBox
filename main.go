@@ -224,7 +224,7 @@ func (m model) View() tea.View{
 									1,
 									lipgloss.Right,
 									lipgloss.Center,
-									fmt.Sprintf("Speed: %s/s",Speed),
+									fmt.Sprintf("Speed: %s",Speed),
 								),
 								
 							),
