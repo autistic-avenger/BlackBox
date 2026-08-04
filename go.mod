@@ -1,4 +1,4 @@
-module blackbox
+module github.com/autistic-avenger/BlackBox
 
 go 1.25.5
 

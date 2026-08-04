@@ -1,12 +1,12 @@
 package main
 
 import (
-	"blackbox/assets"
-	"blackbox/downloader"
-	"blackbox/downloader/helpers"
-	filesio "blackbox/filesIO"
-	"blackbox/models"
-	"blackbox/ticker"
+	"github.com/autistic-avenger/BlackBox/assets"
+	"github.com/autistic-avenger/BlackBox/downloader"
+	"github.com/autistic-avenger/BlackBox/downloader/helpers"
+	filesio "github.com/autistic-avenger/BlackBox/filesIO"
+	"github.com/autistic-avenger/BlackBox/models"
+	"github.com/autistic-avenger/BlackBox/ticker"
 	"fmt"
 	"log"
 	"net/url"

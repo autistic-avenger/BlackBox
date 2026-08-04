@@ -1,8 +1,8 @@
 package downloader
 
 import (
-	"blackbox/downloader/networks"
-	"blackbox/models"
+	"github.com/autistic-avenger/BlackBox/downloader/networks"
+	"github.com/autistic-avenger/BlackBox/models"
 )
 
 

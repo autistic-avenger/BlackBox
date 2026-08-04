@@ -1,8 +1,8 @@
 package networks
 
 import (
-	"blackbox/downloader/helpers"
-	"blackbox/models"
+	"github.com/autistic-avenger/BlackBox/downloader/helpers"
+	"github.com/autistic-avenger/BlackBox/models"
 	"fmt"
 	"io"
 	"mime"
