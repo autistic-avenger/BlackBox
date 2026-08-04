@@ -4,6 +4,7 @@ import (
 	"blackbox/downloader/helpers"
 	"blackbox/models"
 	"fmt"
+	"io"
 	"mime"
 	"net/http"
 	"os"
@@ -13,7 +14,9 @@ import (
 )
 
 func MakeRequest(file *models.File) error {
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
 	
 	req,err := http.NewRequest(http.MethodGet,file.Link,nil)
 	if err!=nil{
@@ -88,7 +91,9 @@ func MakeRequest(file *models.File) error {
 			currentWriteByte+=n
 		}
 		if err != nil {
-			break
+			if err == io.EOF {
+				break
+			}
 		}
 		if (time.Now().UnixMilli()-LastTime)> 1000{
 			
